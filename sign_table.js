@@ -1,6 +1,7 @@
 $('.page-name-K11 table').children().each(function(a,b){
   var rows = $(this).children()
   $(rows).each(function(z,x){
+    var n = $(this).getValueN()
     if($(this).is('tr')){
       $(this).data({'row':z+1,'N_row':parseInt(n)})
     }
