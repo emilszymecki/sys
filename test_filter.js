@@ -1,10 +1,10 @@
-function test(page,arr){
+function test(page,arr,flt,selector){
   var concat = [];
 
-  for(var i=0; i <arr.length;i++){
-		var el = $(page+' td,th').filterData('row',arr[i]);
-	    concat.push(el);
-	}
+   arr.map(function(a,b){
+		var el = $(page+" "+selector).filterData(flt,a);
+		concat.push(el);
+	});
 
-	return concat
+	return concat;
 }
