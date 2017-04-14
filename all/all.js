@@ -87,22 +87,21 @@ $.fn.filterData = function(key, value) {
                             var el = $(table).find(selector).filterData(flt,a);
                             concat.push(el);
                           });
-                          //console.log(concat);
+
                           Arr = concat; 
             return this;
           },
 	mixer: function(arr1,arr2){
+      
                   arr1.map(function(a,b){
                     var tmp = $(b).clone(true);
                     var temp_clone = $(b);
                     var temp2_clone = $(arr2[a]);
-                    console.log(temp_clone.index(),temp2_clone.index())
                     $(temp_clone).after(temp2_clone);
                     $(temp2_clone).after(temp_clone);
                     //$(temp_clone).replaceWith($(temp2_clone));
                   });
            
-               //console.log(arr1,arr2)
 
                   return this;
          },
@@ -140,18 +139,24 @@ $.fn.filterData = function(key, value) {
             self.init(Po);
             return this;
         },
-    limitClick: function(){
-		var arr = Arr;
-      	arr.map(function(a,b){
-			$(this).each(function(){
-				var input = $(this).find('input');
-			})
+    limitClick: function(limit){
+      var arr = Arr;
+ 	  arr.map(function(a,b){
+        var inputs = $(a).find('input');
+        $(inputs).on("change",function(){
+			if($(a).find('input:checked').length >= limit){
+				$(a).find("input:not(:checked)").prop("disabled",true)
+			}else{
+				$(a).find("input:not(:checked)").prop("disabled",false)
+			}
 		})
+		
+	  })
     },
 	delete: function(arr1){
                   arr1.map(function(a,b){
                     var temp_clone = $(b);
-           			$(b).hide(); 
+           			$(this).hide(); 
                   });
            
                   return this;
@@ -170,16 +175,18 @@ $.fn.filterData = function(key, value) {
 
 	Survey.bind('PA7','page','before',function(s,pi,po){ 
 			var dodaj =  self;
-			console.log(dodaj)
+
       		//dodaj.table(po).signTable().crateFullArr().createFilter(self.selectAll('N_col'),'td,th','N_col').switcher(self.mixer)
-            dodaj.init(po).createFilter([1,2],'td,th','N_col').switcher(self.delete)
+            //dodaj.init(po).createFilter([1,2],'td,th','N_col').switcher(self.delete);
+      		 dodaj.init(po).createFilter([1,2],'td,th','N_col').limitClick()
             //dodaj.init(po).createFilter([1,2],'tr','N_row').switcher(self.delete).createFilter(self.selectAll('N_row'),'tr','N_row').switcher(self.mixer).createFilter(self.selectAll('N_col'),'td,th','N_col').switcher(self.mixer)
 	});
   
   	Survey.bind('PA8','page','before',function(s,pi,po){ 
 			var dodaj =  self;
-			console.log(dodaj)
-      		//dodaj.table(po).signTable().crateFullArr().createFilter(self.selectAll('N_col'),'td,th','N_col').switcher(self.mixer)
-            dodaj.init(po).createFilter(self.selectAll('N_row'),'tr','N_row').switcher(self.mixer)
-            //dodaj.init(po).createFilter(self.selectAll('N_col'),'td,th','N_col').switcher(self.mixer)
+
+            //dodaj.init(po).createFilter(self.selectAll('N_row'),'tr','N_row').switcher(self.mixer)
+      		 dodaj.init(po).createFilter([1,2],'td,th','N_col').limitClick(1)
+             dodaj.init(po).createFilter([2],'tr','N_row').limitClick(2)
+            dodaj.init(po).createFilter(self.selectAll('N_col'),'td,th','N_col').switcher(self.mixer)
 	});
