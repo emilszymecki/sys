@@ -93,10 +93,13 @@ $.fn.filterData = function(key, value) {
           },
 	mixer: function(arr1,arr2){
                   arr1.map(function(a,b){
-                    var temp_clone = $(b).clone(true, true);
-                    var temp2_clone = $(arr2[a]).clone(true, true);
-           $(this).replaceWith(temp2_clone); 
-                    
+                    var tmp = $(b).clone(true);
+                    var temp_clone = $(b);
+                    var temp2_clone = $(arr2[a]);
+                    console.log(temp_clone.index(),temp2_clone.index())
+                    $(temp_clone).after(temp2_clone);
+                    $(temp2_clone).after(temp_clone);
+                    //$(temp_clone).replaceWith($(temp2_clone));
                   });
            
                //console.log(arr1,arr2)
@@ -178,5 +181,5 @@ $.fn.filterData = function(key, value) {
 			console.log(dodaj)
       		//dodaj.table(po).signTable().crateFullArr().createFilter(self.selectAll('N_col'),'td,th','N_col').switcher(self.mixer)
             dodaj.init(po).createFilter(self.selectAll('N_row'),'tr','N_row').switcher(self.mixer)
-            //dodaj.init(po).createFilter(self.selectAll('N_row'),'tr','N_row').limitClick()
+            //dodaj.init(po).createFilter(self.selectAll('N_col'),'td,th','N_col').switcher(self.mixer)
 	});
