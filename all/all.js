@@ -8,10 +8,15 @@ $.fn.filterData = function(key, value) {
   var self = (function(){
                   var table,
                   Arr,
-          All
+				  All,
+                  Po
     var self = {
-          table : function(po){
-                    table = $(po).find('table')
+      	  set_po: function(po){
+                    Po = $(po)
+            	return this;
+          },
+          table : function(){
+                    table = $(Po).find('table')
             return this;
           },
           signTable: function(){
@@ -44,10 +49,10 @@ $.fn.filterData = function(key, value) {
                       });          
             return this;
           },
-          selectAll:function(el){ 
+      		selectAll:function(el){	
               return All[el];
-      },
-          crateFullArr : function(){
+			},
+      		crateFullArr : function(){
                   var agg = []
                   var all = {}
                   $(table).find('tr,td,th').each(function(a,b){
@@ -70,9 +75,9 @@ $.fn.filterData = function(key, value) {
                           }
                       }
                   });
-          
-                All = all;
-              return self;
+				  
+              	All = all;
+              return this;
           },
           createFilter: function(arr,selector,flt){
                           
@@ -86,21 +91,31 @@ $.fn.filterData = function(key, value) {
                           Arr = concat; 
             return this;
           },
-         mixer: function(arr1,arr2){
+	mixer: function(arr1,arr2){
                   arr1.map(function(a,b){
-                    var temp_clone = $(b).clone(true);
-                    var temp2_clone = $(arr2[a]).clone(true);
-           $(b).replaceWith(temp2_clone); 
+                    var temp_clone = $(b).clone(true, true);
+                    var temp2_clone = $(arr2[a]).clone(true, true);
+           $(this).replaceWith(temp2_clone); 
+                    
                   });
            
-               console.log(arr1,arr2)
+               //console.log(arr1,arr2)
 
                   return this;
          },
-    switcher: function(fn){
+    switcher: function(fn,mode){
                   var arr = Arr.slice(0);
                   var memArr = Arr.slice(0)
-                fisherYates(memArr)
+                  
+                  var arrManipuate = function(mode){
+					if(mode != 'rev' || undefined){
+						fisherYates(memArr);
+					}
+                    if(mode =='rev'){
+						memArr.reverse()
+					}
+                    
+				  }
                   
                   //console.log(arr[0], memArr[0])
                   
@@ -109,7 +124,7 @@ $.fn.filterData = function(key, value) {
                           
                           if(arr1.length > 0){
                             var el_one  = arr.pop(),
-                                el_two = memArr.pop()
+                                el_two = memArr.pop() || [];
                             //console.log(el_one,el_two);
                 fn(el_one,el_two);
                             make(arr1,arr2);
@@ -117,11 +132,51 @@ $.fn.filterData = function(key, value) {
                           return this;
                   };
             
+      		arrManipuate(mode);
             make(arr,memArr);
-            self.signTable();
+            self.init(Po);
             return this;
-        }
+        },
+    limitClick: function(){
+		var arr = Arr;
+      	arr.map(function(a,b){
+			$(this).each(function(){
+				var input = $(this).find('input');
+			})
+		})
+    },
+	delete: function(arr1){
+                  arr1.map(function(a,b){
+                    var temp_clone = $(b);
+           			$(b).hide(); 
+                  });
+           
+                  return this;
+         },
+     init: function(po){
+          	self.set_po(po)
+			self.table()
+      		self.signTable()
+      		self.crateFullArr()
+      		return this;
+		}
 
      }
     return self;
   })();
+
+	Survey.bind('PA7','page','before',function(s,pi,po){ 
+			var dodaj =  self;
+			console.log(dodaj)
+      		//dodaj.table(po).signTable().crateFullArr().createFilter(self.selectAll('N_col'),'td,th','N_col').switcher(self.mixer)
+            dodaj.init(po).createFilter([1,2],'td,th','N_col').switcher(self.delete)
+            //dodaj.init(po).createFilter([1,2],'tr','N_row').switcher(self.delete).createFilter(self.selectAll('N_row'),'tr','N_row').switcher(self.mixer).createFilter(self.selectAll('N_col'),'td,th','N_col').switcher(self.mixer)
+	});
+  
+  	Survey.bind('PA8','page','before',function(s,pi,po){ 
+			var dodaj =  self;
+			console.log(dodaj)
+      		//dodaj.table(po).signTable().crateFullArr().createFilter(self.selectAll('N_col'),'td,th','N_col').switcher(self.mixer)
+            dodaj.init(po).createFilter(self.selectAll('N_row'),'tr','N_row').switcher(self.mixer)
+            //dodaj.init(po).createFilter(self.selectAll('N_row'),'tr','N_row').limitClick()
+	});
