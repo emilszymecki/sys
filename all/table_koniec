@@ -1,0 +1,184 @@
+$.fn.filterData = function(key, value) {
+    return this.filter(function() {
+        return $(this).data(key) == value;
+    });
+};
+  
+$.fn.swap = function(b){
+    b = jQuery(b)[0];
+    var a = this[0];
+    var t = a.parentNode.insertBefore(document.createTextNode(''), a);
+    b.parentNode.insertBefore(a, b);
+    t.parentNode.insertBefore(b, t);
+    t.parentNode.removeChild(t);
+    return this;
+};  
+
+
+var table = (function(){
+                  var tab,
+                  Arr,
+				  All,
+                  Po
+    var table = {
+      	  set_po: function(po){
+                    Po = $(po)
+            	return this;
+          },
+          tab : function(){
+                    tab = $(Po).find('table')
+            return this;
+          },
+          signtab: function(){
+                   $(tab).children().each(function(a,b){
+                        var rows = $(this).children();
+                        $(rows).each(function(z,x){
+                          var n = $(this).getValueN();
+                          if($(this).is('tr')){
+                            $(this).data({'row':z+1,'N_row':parseInt(n)});
+                          }
+                        var cell = $(this).children();
+                        $(cell).each(function(i,j){
+                            var n_col,
+                            count_col = z;
+                            if(z < 1 && i >0 && $(this).is('th')){
+                              n_col = parseInt($(this).attr('id').split("-")[2]);
+                            }
+                            if(i >0 && $(this).is('td')){
+                              n_col = parseInt($(this).attr('class').split(" ")[2].split("-")[1]);
+                              count_col = z+1;   
+                            }
+                            $(this).data({
+                              'N_row':(n>0)?parseInt(n):'naglowek',
+                              'N_col':n_col || 0,
+                              'col':(i>0)?i:'zero',
+                              'row':(count_col>0)?count_col:'col_label'
+                            });
+                          });
+                        });
+                      });          
+            return this;
+          },
+      		selectAll:function(el){	
+              return All[el];
+			},
+      		crateFullArr : function(){
+                  var agg = []
+                  var all = {}
+                  $(tab).find('tr,td,th').each(function(a,b){
+                      var dataTemp = $(this).data();
+                      agg.push(dataTemp);
+                  });
+
+                  agg.map(function(a,b){
+                      for(var i in a){
+                          if(all[i] ==  undefined){
+                              if(Number.isInteger(a[i]) == true && a[i] > 0 && a[i] < 90){
+                                  all[i] = [a[i]];
+                              }
+                          }else{
+                              if(all[i].indexOf(a[i]) == -1){
+                                  if(Number.isInteger(a[i]) == true && a[i] > 0 && a[i] < 90){
+                                      all[i].push(a[i]);
+                                  }
+                              }
+                          }
+                      }
+                  });
+				  
+              	All = all;
+              return this;
+          },
+          createFilter: function(arr,selector,flt){
+                          
+                           var concat = [];
+
+                           arr.map(function(a,b){
+                            var el = $(tab).find(selector).filterData(flt,a);
+                            concat.push(el);
+                          });
+
+                          Arr = concat; 
+            return this;
+          },
+	mixer: function(arr1,arr2){
+      
+                  arr1.map(function(a,b){
+                    var tmp = $(b).clone(true);
+                    var temp_clone = $(b);
+                    var temp2_clone = $(arr2[a]);
+                    //$(temp_clone).after(temp2_clone);
+                    //$(temp2_clone).after(temp_clone);
+                    $(temp_clone).swap(temp2_clone);
+                  });
+           
+
+                  return this;
+         },
+    switcher: function(fn,mode){
+                  var arr = Arr.slice(0);
+                  var memArr = Arr.slice(0)
+                  
+                  var arrManipuate = function(mode){
+					if(mode != 'rev' || undefined){
+						fisherYates(memArr);
+					}
+                    if(mode =='rev'){
+						memArr.reverse()
+					}
+                    
+				  }
+                  
+                  //console.log(arr[0], memArr[0])
+                  
+           
+                  var make = function(arr1,arr2){
+                          
+                          if(arr1.length > 0){
+                            var el_one  = arr.pop(),
+                                el_two = memArr.pop() || [];
+                            //console.log(el_one,el_two);
+                fn(el_one,el_two);
+                            make(arr1,arr2);
+                          }
+                          return this;
+                  };
+            
+      		arrManipuate(mode);
+            make(arr,memArr);
+            table.init(Po);
+            return this;
+        },
+    limitClick: function(limit){
+      var arr = Arr;
+ 	  arr.map(function(a,b){
+        var inputs = $(a).find('input');
+        $(inputs).on("change",function(){
+			if($(a).find('input:checked').length >= limit){
+				$(a).find("input:not(:checked)").prop("disabled",true)
+			}else{
+				$(a).find("input:not(:checked)").prop("disabled",false)
+			}
+		})
+		
+	  })
+    },
+	delete: function(arr1){
+                  arr1.map(function(a,b){
+                    var temp_clone = $(b);
+           			$(this).remove(); 
+                  });
+           
+                  return this;
+         },
+     init: function(po){
+          	this.set_po(po)
+			this.tab()
+      		this.signtab()
+      		this.crateFullArr()
+      		return this;
+		}
+
+     }
+    return table;
+  })();
